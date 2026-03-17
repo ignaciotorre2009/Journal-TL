@@ -875,7 +875,7 @@ let currentBtStrategy = null;
 
 function renderBtStrategies() {
   const menu = document.getElementById('btStrategyMenu');
-  const strategies = ['Blue A', 'Blue B', 'Blue C', 'Red', 'Pink', 'White', 'Black', 'Green'];
+  const strategies = ['Blue', 'Red', 'Pink', 'White', 'Black', 'Green'];
   menu.innerHTML = strategies.map(s => {
       return `<label class="dropdown-item" onclick="selectBtStrategy('${s}')" style="cursor:pointer; display:block; padding:8px 12px; transition:all 0.2s;">
         ${s}
@@ -888,20 +888,250 @@ function selectBtStrategy(strategy) {
   document.getElementById('filterBtStrategyBtn').innerHTML = strategy + ' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><polyline points="6 9 12 15 18 9"/></svg>';
   document.getElementById('btStrategyMenu').classList.remove('open');
   renderBtTable();
+  renderBtStats();
 }
 
 const BT_BLUE_FIELDS = [
-  { id: 'bt_nivel', label: 'Nivel diario', type: 'select', options: ['Soporte', 'Resistencia', 'Si', 'No'] },
-  { id: 'bt_estructura', label: 'Cambio de estructura', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_variante', label: 'Variante', type: 'select', options: ['A', 'B', 'C'] },
+  { id: 'bt_nivel', label: 'Nivel diario', type: 'select', options: ['Soporte', 'Resistencia'] },
+  { id: 'bt_patron_previo', label: 'Patron previo', type: 'select', options: ['No hay', 'Doble Techo', 'Doble suelo', 'Cuña', 'Triangulo', 'Canal'] },
   { id: 'bt_fibo', label: 'Pullback Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
-  { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal', 'EMA 5m', 'EMA 2m'] }
+  { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal', 'EMA 5m', 'EMA 2m'] },
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['Anterior', 'Ema 4hrs', 'Ext Fibo'] }
 ];
+
+const BT_RED_FIELDS = [
+  { id: 'bt_htf', label: 'High time Frame', type: 'select', options: ['Soporte', 'Resistencia', 'Continuacion'] },
+  { id: 'bt_fibo', label: 'Pullback Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
+  { id: 'bt_emas', label: 'Emas juntas?', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal', 'EMA 5m', 'EMA 2m'] },
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['Anterior', 'Ext Fibo'] }
+];
+
+const BT_PINK_FIELDS = [
+  { id: 'bt_temp_grande', label: 'Temp. Grande', type: 'select', options: ['Soporte', 'Resistencia', 'Continuacion'] },
+  { id: 'bt_conf_cont', label: 'Confirmacion de Continuacion', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_pullback_type', label: 'Pullback', type: 'select', options: ['Canal', 'Cuña', 'Triangulo'] },
+  { id: 'bt_fibo', label: 'Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
+  { id: 'bt_ema_4h', label: 'Llega a ema de 4hrs?', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal 5m', 'EMA 5m', 'EMA 2m', 'Ruptura de patron'] },
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['Anterior', 'Patron'] }
+];
+
+const BT_WHITE_FIELDS = [
+  { id: 'bt_pink_buena', label: 'Pink buena?', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_pullback', label: 'Pullback', type: 'select', options: ['Ema 1h', 'Patron'] },
+  { id: 'bt_fibo', label: 'Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['Patron', 'Anterior', 'Ext Fibo'] }
+];
+
+const BT_BLACK_FIELDS = [
+  { id: 'bt_diario', label: 'Diario', type: 'select', options: ['Soporte', 'Resistencia'] },
+  { id: 'bt_desacel_4h', label: 'Desaceleracion 4hrs', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_rsi', label: 'RSI', type: 'select', options: ['Sobrecompra', 'Sobreventa'] },
+  { id: 'bt_divergencia', label: 'Divergencia', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_ema_1h_toques', label: 'Ema 1h sin toques', type: 'select', options: ['Si', 'No'] },
+  { id: 'bt_patron', label: 'Patron', type: 'select', options: ['Cuña', 'Triangulo', 'Canal'] },
+  { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal 5m', 'Diagonal 2m', 'EMA 5m', 'EMA 2m', 'Patron'] },
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['EMA 1h/4hrs'] }
+];
+
+const BT_GREEN_FIELDS = [
+  { id: 'bt_diario', label: 'Diario', type: 'select', options: ['Soporte', 'Resistencia'] },
+  { id: 'bt_patron', label: 'Patron', type: 'select', options: ['Cuña', 'Triangulo', 'Canal'] },
+  { id: 'bt_pullback', label: 'Pullback', type: 'select', options: ['Desacelerado', 'Acelerado'] },
+  { id: 'bt_fibo', label: 'Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
+  { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal 5m', 'Diagonal 2m', 'EMA 5m', 'EMA 2m', 'Patron'] },
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['Anterior', 'Patron'] }
+];
+
+let btRrChartInst = null;
+let btFiltersChartInst = null;
+let btResultsChartInst = null;
+
+function renderBtStats() {
+  const filtered = btTrades.filter(t => t.strategy === currentBtStrategy);
+  const analytics = document.getElementById('btAnalytics');
+
+  if (filtered.length === 0) {
+    analytics.style.display = 'none';
+    return;
+  }
+  analytics.style.display = 'block';
+
+  const wins   = filtered.filter(t => t.result === 'Win');
+  const losses = filtered.filter(t => t.result === 'Loss');
+  const bes    = filtered.filter(t => t.result === 'Break Even');
+  const winRate = (wins.length + losses.length) > 0
+    ? (wins.length / (wins.length + losses.length)) * 100 : 0;
+
+  // R/R promedio
+  const rrValues = filtered.map(t => parseFloat(t.rr)).filter(v => !isNaN(v));
+  const avgRR = rrValues.length ? rrValues.reduce((a,b)=>a+b,0)/rrValues.length : 0;
+
+  // Profit factor (R/R wins / R/R losses)
+  const rrWins = wins.reduce((s,t)=>s+(parseFloat(t.rr)||0),0);
+  const rrLoss = losses.reduce((s,t)=>s+(parseFloat(t.rr)||0),0);
+  const pf = rrLoss > 0 ? (rrWins / rrLoss) : (rrWins > 0 ? '∞' : '—');
+
+  // Max win streak
+  let maxStreak = 0, cur = 0;
+  [...filtered].sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(t=>{
+    if(t.result==='Win'){ cur++; if(cur>maxStreak) maxStreak=cur; } else cur=0;
+  });
+
+  // Update DOM
+  const wrEl = document.getElementById('btWinRate');
+  wrEl.textContent = winRate.toFixed(1) + '%';
+  wrEl.style.color = winRate >= 50 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('btWinRateSub').textContent = `${wins.length}W / ${losses.length}L / ${bes.length}BE`;
+  document.getElementById('btAvgRR').textContent = avgRR > 0 ? avgRR.toFixed(2) : '—';
+  document.getElementById('btProfitFactor').textContent = typeof pf === 'number' ? pf.toFixed(2) : pf;
+  document.getElementById('btStreak').textContent = maxStreak > 0 ? maxStreak : '—';
+
+  // Diagnosis
+  let diagnosis = '';
+  if (winRate >= 60 && avgRR >= 1.5) diagnosis = '✅ Estrategia sólida. Podés escalar el riesgo con confianza.';
+  else if (winRate >= 55 && avgRR >= 1.2) diagnosis = '🟡 Buen rendimiento. Ajustá el target para mejorar el RR.';
+  else if (winRate < 40) diagnosis = '🔴 Win rate bajo. Revisá los criterios de entrada.';
+  else if (avgRR < 1 && winRate >= 50) diagnosis = '🟠 RR insuficiente. Mejorá la gestión de salida (Target).';
+  else if (typeof pf === 'number' && pf < 1) diagnosis = '🔴 Profit Factor < 1. Las pérdidas superan las ganancias.';
+  else diagnosis = '🔵 Resultados estables. Seguí acumulando datos para más precisión.';
+  document.getElementById('btSuggestion').textContent = diagnosis;
+
+  renderBtCharts(filtered, wins, losses, bes);
+  renderBtConclusions(filtered, wins);
+}
+
+function renderBtCharts(data, wins, losses, bes) {
+  if (btResultsChartInst) btResultsChartInst.destroy();
+  if (btRrChartInst)      btRrChartInst.destroy();
+  if (btFiltersChartInst) btFiltersChartInst.destroy();
+
+  const chartDefaults = {
+    plugins: {
+      legend: { labels: { color:'#8b8fa8', font:{ family:'Inter', size:11 } } },
+      tooltip: { backgroundColor:'#1a1c28', titleColor:'#f0f2ff', bodyColor:'#8b8fa8', borderColor:'rgba(255,255,255,0.1)', borderWidth:1 }
+    },
+    scales: {
+      x: { grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#5a5e78' } },
+      y: { grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#5a5e78' } }
+    }
+  };
+
+  // 1. Donut W/L/BE
+  btResultsChartInst = new Chart(document.getElementById('btResultsChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Win', 'Loss', 'Break Even'],
+      datasets: [{ data: [wins.length, losses.length, bes.length],
+        backgroundColor: ['rgba(34,211,167,.85)','rgba(240,67,106,.85)','rgba(245,200,66,.85)'],
+        borderColor: '#13141c', borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins: { legend:{ position:'right', labels:{ color:'#8b8fa8', padding:12, font:{size:11} } },
+                 tooltip: chartDefaults.plugins.tooltip }
+    }
+  });
+
+  // 2. Bar R/R wins vs losses
+  const avgWinRR = wins.length ? wins.reduce((s,t)=>s+(parseFloat(t.rr)||0),0)/wins.length : 0;
+  const avgLossRR = losses.length ? losses.reduce((s,t)=>s+(parseFloat(t.rr)||0),0)/losses.length : 0;
+  btRrChartInst = new Chart(document.getElementById('btRrChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Ganadoras', 'Perdedoras'],
+      datasets: [{ label:'R/R promedio',
+        data: [parseFloat(avgWinRR.toFixed(2)), parseFloat(avgLossRR.toFixed(2))],
+        backgroundColor: ['rgba(34,211,167,.7)','rgba(240,67,106,.7)'],
+        borderRadius: 6, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:false}, tooltip: chartDefaults.plugins.tooltip },
+      scales: {
+        y: { beginAtZero:true, ...chartDefaults.scales.y },
+        x: { ...chartDefaults.scales.x, grid:{display:false} }
+      }
+    }
+  });
+
+  // 3. Pie Fibo wins
+  const fiboCounts = {};
+  wins.forEach(t => { if(t.bt_fibo) fiboCounts[t.bt_fibo] = (fiboCounts[t.bt_fibo]||0)+1; });
+  const hasFibo = Object.keys(fiboCounts).length > 0;
+  btFiltersChartInst = new Chart(document.getElementById('btFiltersChart').getContext('2d'), {
+    type: hasFibo ? 'pie' : 'bar',
+    data: hasFibo
+      ? { labels: Object.keys(fiboCounts),
+          datasets: [{ data: Object.values(fiboCounts),
+            backgroundColor: ['#5b8af0','#f472b6','#22d3a7','#facc15'],
+            borderWidth: 0, hoverOffset: 6
+          }] }
+      : { labels:['Sin datos Fibo'], datasets:[{data:[1],backgroundColor:['rgba(255,255,255,.05)'],borderWidth:0}] },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ position:'right', labels:{ color:'#8b8fa8', padding:10, font:{size:10} } },
+                 tooltip: chartDefaults.plugins.tooltip }
+    }
+  });
+}
+
+function renderBtConclusions(data, wins) {
+  const container = document.getElementById('btSummaryDetails');
+  if (!container) return;
+
+  const strategy = data[0]?.strategy;
+  if (!strategy) return;
+  const fields = getDynamicBtFields(strategy);
+
+  const colors = ['var(--green)','#5b8af0','#f472b6','#facc15','#a78bfa','#22d3a7','#f59e0b','#34d399'];
+
+  let html = '';
+  fields.forEach((f, idx) => {
+    // Build counts of each option among winners
+    const allCounts = {};
+    const winCounts = {};
+    data.forEach(t => { if(t[f.id]) allCounts[t[f.id]] = (allCounts[t[f.id]]||0)+1; });
+    wins.forEach(t => { if(t[f.id]) winCounts[t[f.id]] = (winCounts[t[f.id]]||0)+1; });
+
+    // Best = highest win count
+    let bestVal = '—', maxW = 0;
+    Object.entries(winCounts).forEach(([v,c])=>{ if(c>maxW){ maxW=c; bestVal=v; }});
+
+    // Win rate per option for tooltip info
+    const bestWR = allCounts[bestVal] > 0 ? Math.round((maxW/allCounts[bestVal])*100) : 0;
+
+    const color = colors[idx % colors.length];
+    html += `
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+                  border-radius:10px; padding:12px 14px; transition: border-color .2s;"
+           onmouseenter="this.style.borderColor='${color}40'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.07)'">
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-bottom:6px;">${f.label}</div>
+        <div style="font-size:17px; font-weight:700; color:${color}; margin-bottom:4px;">${bestVal}</div>
+        <div style="font-size:11px; color:var(--text-muted);">${maxW} wins · ${bestWR}% WR</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html || '<div style="color:var(--text-muted); font-size:13px;">Sin suficientes datos ganadores para analizar.</div>';
+}
 
 function getDynamicBtFields(strategy) {
   if (!strategy) return [];
-  if (strategy.startsWith('Blue')) return BT_BLUE_FIELDS;
-  return []; // you can configure other strategies here later
+  if (strategy === 'Blue') return BT_BLUE_FIELDS;
+  if (strategy === 'Red') return BT_RED_FIELDS;
+  if (strategy === 'Pink') return BT_PINK_FIELDS;
+  if (strategy === 'White') return BT_WHITE_FIELDS;
+  if (strategy === 'Black') return BT_BLACK_FIELDS;
+  if (strategy === 'Green') return BT_GREEN_FIELDS;
+  return [];
 }
+
 
 function renderBtTable() {
   const tbody = document.getElementById('btTradesBody');
@@ -974,6 +1204,8 @@ function renderBtTable() {
   tbody.innerHTML = quickRow + rowsHtml;
 }
 
+
+
 function saveQuickBtTrade() {
   if (!currentBtStrategy) return;
   const dynFields = getDynamicBtFields(currentBtStrategy);
@@ -999,6 +1231,7 @@ function saveQuickBtTrade() {
   saveBtTrades();
   showToast('Setup registrado rápido', 'success');
   renderBtTable();
+  renderBtStats();
   
   // Refocus asset input
   setTimeout(() => {
@@ -1105,6 +1338,7 @@ function saveBtTrade() {
 
   saveBtTrades(); 
   renderBtTable();
+  renderBtStats();
   closeBtModal();
 }
 
@@ -1436,11 +1670,34 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (document.getElementById('playbookView').classList.contains('active-view')) renderPlaybook();
   }
 
-  // Generate demo BT trade if empty
-  if(btTrades.length === 0) {
-    btTrades = [
-      { id:1, strategy:'Blue A', asset:'NQ1!', date:'2025-02-01', direction:'LONG', result:'Win', rr:'2.5', bt_nivel:'Soporte', bt_estructura:'Si', bt_fibo:'0.61', bt_entrada:'EMA 5m' }
-    ];
+  // Generate demo BT trades if empty
+  if(btTrades.length < 5) {
+    const strategies = ['Blue', 'Red', 'Pink', 'White', 'Black', 'Green'];
+    const assets = ['NQ1!', 'ES1!', 'EURUSD', 'BTCUSDT', 'XAUUSD'];
+    btTrades = [];
+    let idCounter = 1;
+
+    strategies.forEach(strat => {
+      const fields = getDynamicBtFields(strat);
+      for(let i=0; i<20; i++) {
+        const isWin = Math.random() > 0.5;
+        const result = isWin ? 'Win' : (Math.random() > 0.8 ? 'Break Even' : 'Loss');
+        const trade = {
+          id: idCounter++,
+          strategy: strat,
+          asset: assets[Math.floor(Math.random()*assets.length)],
+          date: new Date(Date.now() - Math.random()*1000*60*60*24*30).toISOString().split('T')[0],
+          direction: Math.random() > 0.5 ? 'LONG' : 'SHORT',
+          result: result,
+          rr: (Math.random() * 2 + 1).toFixed(2)
+        };
+        // Fill dynamic fields randomly
+        fields.forEach(f => {
+          trade[f.id] = f.options[Math.floor(Math.random()*f.options.length)];
+        });
+        btTrades.push(trade);
+      }
+    });
     saveBtTrades();
   }
 });

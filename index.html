@@ -285,6 +285,63 @@
           <h1 class="greeting">Backtesting</h1>
           <p class="header-date">Registro de sesiones pasadas</p>
         </div>
+
+        <!-- BT ANALYTICS SECTION (shown when strategy selected) -->
+        <div id="btAnalytics" style="display:none;">
+
+          <!-- KPI CARDS ROW -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:20px;" id="btDashboard">
+            <div class="stat-card" style="border-left:3px solid var(--green);">
+              <div class="stat-label" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Win Rate</div>
+              <div class="stat-value" id="btWinRate" style="font-size:32px;">0%</div>
+              <div class="stat-sub" id="btWinRateSub">0W / 0L / 0BE</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid #5b8af0;">
+              <div class="stat-label" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px;">R/R Promedio</div>
+              <div class="stat-value" id="btAvgRR" style="font-size:32px; color:#5b8af0;">—</div>
+              <div class="stat-sub">en trades con RR</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid #f59e0b;">
+              <div class="stat-label" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Profit Factor</div>
+              <div class="stat-value" id="btProfitFactor" style="font-size:32px; color:#f59e0b;">—</div>
+              <div class="stat-sub">ganancias / pérdidas</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid #a78bfa;">
+              <div class="stat-label" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Racha Ganadoras</div>
+              <div class="stat-value" id="btStreak" style="font-size:32px; color:#a78bfa;">—</div>
+              <div class="stat-sub">consecutivas máx.</div>
+            </div>
+            <div class="stat-card" id="btSuggestionCard" style="border-left:3px solid #22d3a7; grid-column: span 1;">
+              <div class="stat-label" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Diagnóstico</div>
+              <div id="btSuggestion" style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:6px; line-height:1.4;">—</div>
+            </div>
+          </div>
+
+          <!-- CHARTS ROW -->
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:20px;" id="btChartsContainer">
+            <div class="stats-chart-card" style="height:220px;">
+              <h3 style="font-size:12px; margin-bottom:10px; color:var(--text-secondary);">Distribución W/L/BE</h3>
+              <canvas id="btResultsChart"></canvas>
+            </div>
+            <div class="stats-chart-card" style="height:220px;">
+              <h3 style="font-size:12px; margin-bottom:10px; color:var(--text-secondary);">R/R Ganadores vs Perdedores</h3>
+              <canvas id="btRrChart"></canvas>
+            </div>
+            <div class="stats-chart-card" style="height:220px;">
+              <h3 style="font-size:12px; margin-bottom:10px; color:var(--text-secondary);">Fibo más exitoso (Wins)</h3>
+              <canvas id="btFiltersChart"></canvas>
+            </div>
+          </div>
+
+          <!-- INSIGHTS ROW (best filter per field) -->
+          <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:20px;">
+            <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:14px;">
+              🔍 Mejores condiciones en trades ganadores
+            </div>
+            <div id="btSummaryDetails" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
+          </div>
+
+        </div>
         
         <div class="toolbar" style="margin-bottom: 20px;">
           <div class="toolbar-left">
@@ -641,6 +698,7 @@
   <!-- TOAST NOTIFICATIONS -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
