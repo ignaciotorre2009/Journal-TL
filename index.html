@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradingLab Journal</title>
+  <meta name="description" content="Journal profesional para registrar y analizar tus trades. Seguimiento de P&L, estrategias y estadísticas de rendimiento." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#FF6B35" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="21" cy="7" r="2" fill="#FF6B35"/>
+        </svg>
+      </div>
+      <span class="logo-text">TradingLab</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" id="nav-journal" data-tooltip="Journal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <span class="nav-label">Journal</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-stats" data-tooltip="Estadísticas">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <span class="nav-label">Estadísticas</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-calendar" data-tooltip="Calendario">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="nav-label">Calendario</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-playbook" data-tooltip="Playbook">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <span class="nav-label">Playbook</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-backtesting" data-tooltip="Backtesting">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <span class="nav-label">Backtesting</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <a href="#" class="nav-item" data-tooltip="Configuración">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 0 0-14.14 0M4.93 19.07a10 10 0 0 0 14.14 0"/>
+        </svg>
+        <span class="nav-label">Configuración</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT WRAPPER (table + side panel) -->
+  <div class="content-wrapper" id="contentWrapper">
+
+    <main class="main-content" id="mainContent">
+
+      <!-- JOURNAL VIEW -->
+      <div id="journalView" class="view active-view">
+        <div class="page-header">
+          <div class="header-left">
+            <h1 class="greeting" id="greeting">¡Hola, trader!</h1>
+            <p class="header-date" id="headerDate"></p>
+          </div>
+          <div class="header-right">
+            <button class="btn-export" id="btnExport" title="Exportar datos">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Exportar
+            </button>
+          </div>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              P&L Total
+            </div>
+            <div class="stat-value" id="totalPnl">0.00€</div>
+            <div class="stat-sub" id="pnlSub">0 trades cerrados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Ratio de Acierto
+            </div>
+            <div class="stat-value" id="winRate">0.00%</div>
+            <div class="stat-sub" id="winRateSub">0 wins / 0 losses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Estrategia más acertada
+            </div>
+            <div class="stat-value" id="bestStrategy">—</div>
+            <div class="stat-sub" id="bestStrategySub">sin datos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 5 5 12"/></svg>
+              Dirección más acertada
+            </div>
+            <div class="stat-value" id="bestDirection">—</div>
+            <div class="stat-sub" id="bestDirectionSub">sin datos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+              Avg. Risk/Reward
+            </div>
+            <div class="stat-value" id="avgRR">0.00</div>
+            <div class="stat-sub">ratio riesgo/beneficio</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 3 9 21 6 12 2 12"/></svg>
+              Mejor Trade
+            </div>
+            <div class="stat-value" id="bestTrade">0.00€</div>
+            <div class="stat-sub">máximo ganado en 1 trade</div>
+          </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="search-wrapper">
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="searchInput" class="search-input" placeholder="Buscar por activo, estrategia..."/>
+            </div>
+            <div class="filter-group">
+              <div class="filter-dropdown" id="filterStrategy">
+                <button class="filter-btn" id="filterStrategyBtn">
+                  Estrategia <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dropdown-menu" id="strategyMenu"></div>
+              </div>
+              <div class="filter-dropdown" id="filterStyle">
+                <button class="filter-btn" id="filterStyleBtn">
+                  Estilo <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dropdown-menu" id="styleMenu">
+                  <label class="dropdown-item"><input type="checkbox" value="Scalping" class="style-filter"/> ⚡ Scalping</label>
+                  <label class="dropdown-item"><input type="checkbox" value="Day" class="style-filter"/> ☀️ Day</label>
+                  <label class="dropdown-item"><input type="checkbox" value="Swing" class="style-filter"/> 🌊 Swing</label>
+                </div>
+              </div>
+              <div class="filter-dropdown" id="filterDirection">
+                <button class="filter-btn" id="filterDirectionBtn">
+                  Dirección <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dropdown-menu" id="directionMenu">
+                  <label class="dropdown-item"><input type="checkbox" value="LONG" class="dir-filter"/> LONG</label>
+                  <label class="dropdown-item"><input type="checkbox" value="SHORT" class="dir-filter"/> SHORT</label>
+                </div>
+              </div>
+              <div class="filter-dropdown" id="filterResult">
+                <button class="filter-btn" id="filterResultBtn">
+                  Resultado <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dropdown-menu" id="resultMenu">
+                  <label class="dropdown-item"><input type="checkbox" value="Win" class="result-filter"/> Win</label>
+                  <label class="dropdown-item"><input type="checkbox" value="Loss" class="result-filter"/> Loss</label>
+                  <label class="dropdown-item"><input type="checkbox" value="Break Even" class="result-filter"/> Break Even</label>
+                  <label class="dropdown-item"><input type="checkbox" value="En curso" class="result-filter"/> En curso</label>
+                </div>
+              </div>
+              <button class="btn-clear-filters" id="btnClearFilters" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Limpiar
+              </button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn-primary" id="btnNewTrade">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nuevo Trade
+            </button>
+          </div>
+        </div>
+
+        <!-- TRADES TABLE -->
+        <div class="table-container" id="tableContainer">
+          <table class="trades-table" id="tradesTable">
+            <thead>
+              <tr>
+                <th class="th-id">#ID</th>
+                <th class="th-asset">Activo</th>
+                <th class="th-date sortable" data-sort="date">
+                  Fecha <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </th>
+                <th class="th-strategy">Estrategia</th>
+                <th class="th-style">Estilo</th>
+                <th class="th-direction">Dirección</th>
+                <th class="th-result">Resultado</th>
+                <th class="th-pnl sortable" data-sort="pnl">
+                  P&L <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </th>
+                <th class="th-rr">R/R</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tradesBody"></tbody>
+          </table>
+          <div class="table-empty" id="tableEmpty" style="display:none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>No hay trades que coincidan con los filtros</p>
+            <button class="btn-primary" onclick="document.getElementById('btnNewTrade').click()">Agregar primer trade</button>
+          </div>
+          <div class="table-footer" id="tableFooter">
+            <span id="tableCount"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS VIEW -->
+      <div id="statsView" class="view">
+        <div class="page-header">
+          <h1 class="greeting">Estadísticas</h1>
+          <p class="header-date">Análisis de rendimiento</p>
+        </div>
+        <div class="stats-detail-grid">
+          <div class="stats-chart-card wide"><h3>Curva de Equity</h3><canvas id="equityChart"></canvas></div>
+          <div class="stats-chart-card wide" style="max-height: 280px;"><h3>Drawdown</h3><canvas id="drawdownChart"></canvas></div>
+          <div class="stats-chart-card"><h3>P&L por Día de la Semana</h3><canvas id="dayChart"></canvas></div>
+          <div class="stats-chart-card"><h3>P&L por Horario</h3><canvas id="timeChart"></canvas></div>
+          <div class="stats-chart-card"><h3>Distribución de Resultados</h3><canvas id="resultsChart"></canvas></div>
+          <div class="stats-chart-card"><h3>P&L por Estrategia</h3><canvas id="strategyChart"></canvas></div>
+        </div>
+        <div class="stats-metrics-grid" id="extendedMetrics"></div>
+      </div>
+
+      <!-- CALENDAR VIEW -->
+      <div id="calendarView" class="view">
+        <div class="page-header">
+          <h1 class="greeting">Calendario</h1>
+          <p class="header-date">Rendimiento por día</p>
+        </div>
+        <div class="calendar-nav">
+          <button class="cal-nav-btn" id="calPrev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button class="cal-nav-btn" id="calNext"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <!-- PLAYBOOK VIEW -->
+      <div id="playbookView" class="view">
+        <div class="page-header">
+          <h1 class="greeting">Playbook</h1>
+          <p class="header-date">Tus estrategias definidas</p>
+        </div>
+        <div class="playbook-container" id="playbookContainer"></div>
+      </div>
+
+      <!-- BACKTESTING VIEW -->
+      <div id="backtestingView" class="view">
+        <div class="page-header">
+          <h1 class="greeting">Backtesting</h1>
+          <p class="header-date">Registro de sesiones pasadas</p>
+        </div>
+        
+        <div class="toolbar" style="margin-bottom: 20px;">
+          <div class="toolbar-left">
+            <div class="filter-dropdown">
+              <button class="filter-btn" id="filterBtStrategyBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Estrategia
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="dropdown-menu" id="btStrategyMenu">
+                 <!-- Populated dynamically -->
+              </div>
+            </div>
+            <div style="font-size:13px; color:var(--text-muted); display:flex; align-items:center;">
+               Selecciona una estrategia para ver sus columnas específicas
+            </div>
+          </div>
+          <div class="toolbar-right">
+             <button class="btn-primary" id="btnNewBtTrade">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Nuevo Setup
+            </button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="trades-table" id="btTradesTable">
+            <thead id="btTradesHead">
+              <tr>
+                <th class="th-id">#ID</th>
+                <th class="th-asset">Activo</th>
+                <th class="th-date">Fecha BT</th>
+                <th class="th-strategy">Estrategia</th>
+                <th class="th-result">Resultado</th>
+                <th class="th-pnl">R/R</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="btTradesBody">
+            </tbody>
+          </table>
+          <div class="table-empty" id="btTableEmpty" style="display:block;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>Selecciona una estrategia para ver las columnas o crea un nuevo trade.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════
+         BT SIDE PANEL — Ver / Editar trade BT
+    ═══════════════════════════════════════════════════════ -->
+    <aside class="side-panel" id="btSidePanel">
+      <div class="side-panel-header">
+        <div class="side-panel-title-row">
+          <div>
+            <h2 class="side-panel-title" id="btPanelTitle">Setup BT #—</h2>
+            <div class="side-panel-badges" id="btPanelBadges"></div>
+          </div>
+          <div class="side-panel-actions">
+            <button class="btn-panel-edit" id="btPanelEditBtn" title="Editar setup">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-panel-delete" id="btPanelDeleteBtn" title="Eliminar setup" style="background:rgba(240,67,106,0.1); color:var(--red); width:32px; height:32px; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </button>
+            <button class="btn-panel-close" id="btPanelClose" title="Cerrar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="side-panel-body" id="btPanelBody">
+        <!-- Injected dynamically -->
+      </div>
+    </aside>
+    <div class="panel-overlay" id="btPanelOverlay"></div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         RIGHT SIDE PANEL — Ver Trade
+    ═══════════════════════════════════════════════════════ -->
+    <aside class="side-panel" id="sidePanel">
+      <div class="side-panel-header">
+        <div class="side-panel-title-row">
+          <div>
+            <h2 class="side-panel-title" id="panelTitle">Trade #—</h2>
+            <div class="side-panel-badges" id="panelBadges"></div>
+          </div>
+          <div class="side-panel-actions">
+            <button class="btn-template" id="btnEditTemplate" title="Editar plantilla">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Editar plantilla
+            </button>
+            <button class="btn-panel-edit" id="panelEditBtn" title="Editar trade">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-panel-close" id="panelClose" title="Cerrar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel-body" id="panelBody">
+        <!-- Injected dynamically -->
+      </div>
+    </aside>
+
+  </div><!-- end content-wrapper -->
+
+  <!-- OVERLAY para cerrar el panel al tocar fuera -->
+  <div class="panel-overlay" id="panelOverlay"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL: NUEVO / EDITAR TRADE
+  ═══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="tradeModal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Nuevo Trade</h2>
+        <button class="modal-close" id="modalClose">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Activo *</label>
+            <input type="text" id="formAsset" class="form-input" placeholder="Ej: EURUSD, BTC, NQ1!" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha *</label>
+            <input type="date" id="formDate" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora de entrada</label>
+            <input type="time" id="formTime" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dirección *</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-value="LONG" id="toggleLong">LONG</button>
+              <button class="toggle-btn" data-value="SHORT" id="toggleShort">SHORT</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estrategia</label>
+            <select id="formStrategy" class="form-input form-select">
+              <option value="">Seleccionar...</option>
+              <option>Blue A</option>
+              <option>Blue B</option>
+              <option>Blue C</option>
+              <option>Red</option>
+              <option>Pink</option>
+              <option>White</option>
+              <option>Black</option>
+              <option>Green</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estilo</label>
+            <div class="toggle-group-3">
+              <button class="toggle-btn-3" data-value="Scalping" id="toggleScalping">⚡ Scalping</button>
+              <button class="toggle-btn-3" data-value="Day" id="toggleDay">☀️ Day</button>
+              <button class="toggle-btn-3" data-value="Swing" id="toggleSwing">🌊 Swing</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resultado</label>
+            <select id="formResult" class="form-input form-select">
+              <option value="">Seleccionar...</option>
+              <option>Win</option>
+              <option>Loss</option>
+              <option>Break Even</option>
+              <option>En curso</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sesión</label>
+            <select id="formSession" class="form-input form-select">
+              <option value="">Seleccionar...</option>
+              <option>Tokio</option>
+              <option>Londres</option>
+              <option>Nueva York</option>
+              <option>Overlap LDN/NY</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio de Entrada</label>
+            <input type="number" id="formEntry" class="form-input" placeholder="0.00" step="0.00001" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stop Loss (SL)</label>
+            <input type="number" id="formSL" class="form-input" placeholder="0.00" step="0.00001" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Take Profit (TP)</label>
+            <input type="number" id="formTP" class="form-input" placeholder="0.00" step="0.00001" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">P&L (€/$)</label>
+            <input type="number" id="formPnl" class="form-input" placeholder="+/-0.00" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tamaño de posición (lotes)</label>
+            <input type="number" id="formSize" class="form-input" placeholder="0.01" step="0.01" />
+          </div>
+          <div class="form-group form-group-full rr-calculator" id="rrCalc" style="display:none;">
+            <div class="rr-result">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+              Risk/Reward calculado: <strong id="rrValue">—</strong>
+            </div>
+          </div>
+          <div class="form-group form-group-full">
+            <label class="form-label">Imagen del trade (captura de pantalla)</label>
+            <div class="image-upload-area" id="imageUploadArea">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>Arrastra una imagen aquí o <span class="upload-link">haz clic para seleccionar</span></p>
+              <input type="file" id="formImage" accept="image/*" style="display:none;" />
+            </div>
+            <div class="image-preview-area" id="imagePreviewArea" style="display:none;">
+              <img id="imagePreview" src="" alt="Trade screenshot" />
+              <button class="remove-image-btn" id="removeImageBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Quitar imagen
+              </button>
+            </div>
+          </div>
+          <div class="form-group form-group-full">
+            <label class="form-label">Notas / Análisis</label>
+            <textarea id="formNotes" class="form-input form-textarea" placeholder="¿Qué observaste? ¿Por qué entraste? ¿Qué salió bien o mal?..."></textarea>
+          </div>
+          <div class="form-group form-group-full">
+            <label class="form-label">Emociones durante el trade</label>
+            <div class="emotions-grid">
+              <button class="emotion-btn" data-emotion="😌 Tranquilo">😌 Tranquilo</button>
+              <button class="emotion-btn" data-emotion="😤 Ansioso">😤 Ansioso</button>
+              <button class="emotion-btn" data-emotion="😰 Con miedo">😰 Con miedo</button>
+              <button class="emotion-btn" data-emotion="🤩 Eufórico">🤩 Eufórico</button>
+              <button class="emotion-btn" data-emotion="😡 Frustrado">😡 Frustrado</button>
+              <button class="emotion-btn" data-emotion="🧠 Enfocado">🧠 Enfocado</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="modalCancel">Cancelar</button>
+        <button class="btn-primary" id="modalSave">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar Trade
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL: EDITAR PLANTILLA
+  ═══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="templateModalOverlay">
+    <div class="modal" id="templateModal">
+      <div class="modal-header">
+        <div>
+          <h2>Editar Plantilla</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">Define qué campos/preguntas aparecen al ver cada trade</p>
+        </div>
+        <button class="modal-close" id="templateModalClose">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6;">
+          Agrega las preguntas o secciones que quieras ver en el panel de cada trade. Por ejemplo: <em>"¿Cómo me sentí?"</em>, <em>"¿Seguí el plan?"</em>, <em>"Lección del día"</em>, etc.
+        </p>
+        <div id="templateFieldsList" class="template-fields-list">
+          <!-- Dynamic fields -->
+        </div>
+        <button class="btn-add-field" id="btnAddField">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar campo
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="templateModalCancel">Cancelar</button>
+        <button class="btn-primary" id="templateModalSave">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar plantilla
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL: BACKTESTING SETUP
+  ═══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="btModalOverlay">
+    <div class="modal" id="btModal">
+      <div class="modal-header">
+        <h2 id="btModalTitle">Nuevo Setup de Backtesting</h2>
+        <button class="modal-close" id="btModalClose">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <!-- BASE COLUMNS -->
+          <div class="form-group">
+            <label class="form-label">Activo *</label>
+            <input type="text" id="btFormAsset" class="form-input" placeholder="Ej: EURUSD, BTC, NQ1!" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha BT *</label>
+            <input type="date" id="btFormDate" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-value="LONG" id="btToggleLong">LONG</button>
+              <button class="toggle-btn" data-value="SHORT" id="btToggleShort">SHORT</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resultado</label>
+            <select id="btFormResult" class="form-input form-select">
+              <option value="">Seleccionar...</option>
+              <option>Win</option>
+              <option>Loss</option>
+              <option>Break Even</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">R/R Alcanzado</label>
+            <input type="number" id="btFormRR" class="form-input" placeholder="Ej: 2.5" step="0.01" />
+          </div>
+
+          <!-- DYNAMIC COLUMNS CONTAINER -->
+          <div id="btDynamicFields" class="form-grid form-group-full" style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border);">
+             <!-- Rendered dynamically -->
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btModalCancel">Cancelar</button>
+        <button class="btn-primary" id="btModalSave">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar Setup BT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
