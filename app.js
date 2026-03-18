@@ -2,13 +2,19 @@
 const STORAGE_KEY = 'tradinglab_trades_v2';
 const TEMPLATE_KEY = 'tradinglab_template_v1';
 const TEMPLATE_DATA_KEY = 'tradinglab_template_data_v1';
-const BT_STORAGE_KEY = 'tradinglab_bt_trades_v1';
+const BT_STORAGE_KEY        = 'tradinglab_bt_trades_v1';
+const BT_TEMPLATE_KEY       = 'tradinglab_bt_templates_v1';
+const BT_TEMPLATE_DATA_KEY  = 'tradinglab_bt_template_data_v1';
 
 let trades = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 let templateFields = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]');
 // templateData: { [tradeId]: { [fieldLabel]: "respuesta" } }
 let templateData = JSON.parse(localStorage.getItem(TEMPLATE_DATA_KEY) || '{}');
-let btTrades = JSON.parse(localStorage.getItem(BT_STORAGE_KEY) || '[]');
+let btTrades        = JSON.parse(localStorage.getItem(BT_STORAGE_KEY)       || '[]');
+// btTemplates: { ["strategy_timeframe"]: ["pregunta1", "pregunta2", ...] }
+let btTemplates     = JSON.parse(localStorage.getItem(BT_TEMPLATE_KEY)      || '{}');
+// btTemplateData: { [btTradeId]: { [question]: "respuesta" } }
+let btTemplateData  = JSON.parse(localStorage.getItem(BT_TEMPLATE_DATA_KEY) || '{}');
 
 let editingId = null;
 let editingBtId = null;
@@ -23,7 +29,14 @@ let calendarDate = new Date();
 function saveTrades() { localStorage.setItem(STORAGE_KEY, JSON.stringify(trades)); }
 function saveTemplate() { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateFields)); }
 function saveTemplateData() { localStorage.setItem(TEMPLATE_DATA_KEY, JSON.stringify(templateData)); }
-function saveBtTrades() { localStorage.setItem(BT_STORAGE_KEY, JSON.stringify(btTrades)); }
+function saveBtTrades()       { localStorage.setItem(BT_STORAGE_KEY,       JSON.stringify(btTrades)); }
+function saveBtTemplates()    { localStorage.setItem(BT_TEMPLATE_KEY,      JSON.stringify(btTemplates)); }
+function saveBtTemplateData() { localStorage.setItem(BT_TEMPLATE_DATA_KEY, JSON.stringify(btTemplateData)); }
+
+function getBtTemplateKey(strategy) { return strategy || 'global'; }
+function getBtTemplateFields(strategy) {
+  return btTemplates[getBtTemplateKey(strategy)] || [];
+}
 
 function nextId() { return trades.length === 0 ? 1 : Math.max(...trades.map(t => t.id)) + 1; }
 function nextBtId() { return btTrades.length === 0 ? 1 : Math.max(...btTrades.map(t => t.id)) + 1; }
@@ -875,12 +888,24 @@ let currentBtStrategy = null;
 
 function renderBtStrategies() {
   const menu = document.getElementById('btStrategyMenu');
-  const strategies = ['Blue', 'Red', 'Pink', 'White', 'Black', 'Green'];
-  menu.innerHTML = strategies.map(s => {
-      return `<label class="dropdown-item" onclick="selectBtStrategy('${s}')" style="cursor:pointer; display:block; padding:8px 12px; transition:all 0.2s;">
-        ${s}
-      </label>`;
-  }).join('');
+  const dayStrategies      = ['Blue', 'Red', 'Pink', 'White', 'Black', 'Green'];
+  const swingStrategies    = ['Red', 'Pink', 'White', 'Black', 'Green'];
+  const scalpingStrategies = ['Red', 'Pink', 'White', 'Black', 'Green'];
+
+  const makeGroup = (groupLabel, list) =>
+    `<div style="padding:6px 12px 2px; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-muted); font-weight:700;">${groupLabel}</div>` +
+    list.map(s =>
+      `<label class="dropdown-item" onclick="selectBtStrategy('${s}')" style="cursor:pointer; display:block; padding:8px 12px; transition:all 0.2s;">
+        ${s} <span style="font-size:10px; color:var(--text-muted);">(${groupLabel})</span>
+      </label>`
+    ).join('');
+
+  const sep = `<div style="border-top:1px solid var(--border); margin:4px 0;"></div>`;
+
+  menu.innerHTML =
+    makeGroup('Day', dayStrategies) + sep +
+    makeGroup('Swing', swingStrategies) + sep +
+    makeGroup('Scalping', scalpingStrategies);
 }
 
 function selectBtStrategy(strategy) {
@@ -922,24 +947,25 @@ const BT_WHITE_FIELDS = [
   { id: 'bt_pink_buena', label: 'Pink buena?', type: 'select', options: ['Si', 'No'] },
   { id: 'bt_pullback', label: 'Pullback', type: 'select', options: ['Ema 1h', 'Patron'] },
   { id: 'bt_fibo', label: 'Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
+  { id: 'bt_ruptura_ema_1h', label: 'Ruptura de ema 1h?', type: 'select', options: ['Si', 'No'] },
   { id: 'bt_target', label: 'Target', type: 'select', options: ['Patron', 'Anterior', 'Ext Fibo'] }
 ];
 
 const BT_BLACK_FIELDS = [
   { id: 'bt_diario', label: 'Diario', type: 'select', options: ['Soporte', 'Resistencia'] },
   { id: 'bt_desacel_4h', label: 'Desaceleracion 4hrs', type: 'select', options: ['Si', 'No'] },
-  { id: 'bt_rsi', label: 'RSI', type: 'select', options: ['Sobrecompra', 'Sobreventa'] },
+  { id: 'bt_rsi', label: 'RSI', type: 'select', options: ['Sobrecompra', 'Sobreventa', 'No'] },
   { id: 'bt_divergencia', label: 'Divergencia', type: 'select', options: ['Si', 'No'] },
   { id: 'bt_ema_1h_toques', label: 'Ema 1h sin toques', type: 'select', options: ['Si', 'No'] },
   { id: 'bt_patron', label: 'Patron', type: 'select', options: ['Cuña', 'Triangulo', 'Canal'] },
   { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal 5m', 'Diagonal 2m', 'EMA 5m', 'EMA 2m', 'Patron'] },
-  { id: 'bt_target', label: 'Target', type: 'select', options: ['EMA 1h/4hrs'] }
+  { id: 'bt_target', label: 'Target', type: 'select', options: ['EMA 1h', 'EMA 4hrs', 'EMA 1h/4hrs'] }
 ];
 
 const BT_GREEN_FIELDS = [
-  { id: 'bt_diario', label: 'Diario', type: 'select', options: ['Soporte', 'Resistencia'] },
+  { id: 'bt_diario', label: 'Semanal', type: 'select', options: ['Soporte', 'Resistencia'] },
   { id: 'bt_patron', label: 'Patron', type: 'select', options: ['Cuña', 'Triangulo', 'Canal'] },
-  { id: 'bt_pullback', label: 'Pullback', type: 'select', options: ['Desacelerado', 'Acelerado'] },
+  { id: 'bt_pullback', label: 'Relacion Imp. - Pull.', type: 'select', options: ['1:2', '1:3', '1:4', '1:+4'] },
   { id: 'bt_fibo', label: 'Fibo', type: 'select', options: ['0.38', '0.5', '0.61'] },
   { id: 'bt_entrada', label: 'Entrada', type: 'select', options: ['Diagonal 5m', 'Diagonal 2m', 'EMA 5m', 'EMA 2m', 'Patron'] },
   { id: 'bt_target', label: 'Target', type: 'select', options: ['Anterior', 'Patron'] }
@@ -1193,7 +1219,10 @@ function renderBtTable() {
       <td><span class="badge ${t.result === 'Win' ? 'badge-win' : t.result === 'Loss' ? 'badge-loss' : t.result === 'Break Even' ? 'badge-be' : 'badge-strategy' }">${t.result || '—'}</span></td>
       <td class="td-rr">${t.rr ? `1:${t.rr}` : '—'}</td>
       ${dynCells}
-      <td class="td-actions">
+      <td class="td-actions" style="display:flex; gap:4px; align-items:center;">
+        <button class="btn-table-action" onclick="openBtPanel(${t.id})" title="Ver detalles" style="display:flex; align-items:center; gap:4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Ver
+        </button>
         <button class="btn-table-delete" onclick="deleteBtTrade(${t.id})" title="Eliminar" style="background: rgba(240,67,106,0.1); color: var(--red); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
         </button>
@@ -1410,7 +1439,7 @@ function renderBtPanelBody(t) {
       <div class="panel-section-title">Imagen del setup</div>
       <div id="btImageUploadArea" style="border:2px dashed var(--border); border-radius:10px; padding:20px; text-align:center; cursor:pointer; color:var(--text-muted); font-size:13px; transition:border-color 0.2s;" onclick="document.getElementById('btImageInput').click()">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <p style="margin:0;">Click para subir imagen</p>
+        <p style="margin:0;">Click o arrastrá para subir una imagen</p>
         <input type="file" id="btImageInput" accept="image/*" style="display:none;" onchange="loadBtImage(${t.id}, this)">
       </div>
     </div>`;
@@ -1419,14 +1448,52 @@ function renderBtPanelBody(t) {
   // Notes
   html += `<div>
     <div class="panel-section-title">Notas / Análisis</div>
-    <textarea id="btPanelNotes" class="template-field-textarea" placeholder="Escribe aquí tu análisis, observaciones, lecciones aprendidas..." style="min-height:120px; width:100%; resize:vertical;">${t.notes || ''}</textarea>
-    <div class="panel-save-btn" style="margin-top:10px;">
+    <textarea id="btPanelNotes" class="template-field-textarea" placeholder="Escribe aquí tu análisis, observaciones, lecciones aprendidas..." style="min-height:100px; width:100%; resize:vertical;">${t.notes || ''}</textarea>
+    <div class="panel-save-btn" style="margin-top:8px;">
       <button class="btn-primary" onclick="saveBtPanelNotes(${t.id})" style="width:100%;justify-content:center;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         Guardar notas
       </button>
     </div>
   </div>`;
+
+  // ── Plantilla editable por estrategia ──
+  const tmplFields = getBtTemplateFields(t.strategy);
+  const tradeAnswers = btTemplateData[String(t.id)] || {};
+
+  html += `<div style="border-top:1px solid var(--border); padding-top:16px; margin-top:4px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <div class="panel-section-title" style="margin-bottom:0;">📋 Mi plantilla <span style="font-size:10px; color:var(--text-muted); font-weight:400;">(${t.strategy})</span></div>
+      <button onclick="openBtTemplateModal('${t.strategy}')" class="btn-template" style="font-size:11px; padding:4px 10px; height:28px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Editar plantilla
+      </button>
+    </div>`;
+
+  if (tmplFields.length > 0) {
+    tmplFields.forEach(field => {
+      const val = tradeAnswers[field] || '';
+      html += `<div class="template-field-block" style="margin-bottom:12px;">
+        <div class="template-field-label">${field}</div>
+        <textarea class="template-field-textarea bt-tmpl-answer" data-field="${field}" placeholder="Escribe aquí...">${val}</textarea>
+      </div>`;
+    });
+    html += `<div class="panel-save-btn" style="margin-top:8px;">
+      <button class="btn-primary" onclick="saveBtPanelTemplateAnswers(${t.id})" style="width:100%;justify-content:center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Guardar respuestas
+      </button>
+    </div>`;
+  } else {
+    html += `<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:8px;">
+      No hay campos en la plantilla aún.<br>
+      <button onclick="openBtTemplateModal()" class="btn-template" style="margin-top:10px; margin-left:auto; margin-right:auto;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Crear plantilla
+      </button>
+    </div>`;
+  }
+  html += `</div>`;
 
   document.getElementById('btPanelBody').innerHTML = html;
 
@@ -1486,6 +1553,82 @@ function removeBtImage(id) {
   saveBtTrades();
   renderBtPanelBody(btTrades[idx]);
   showToast('Imagen eliminada', 'info');
+}
+
+// ─── BT TEMPLATE MODAL ────────────────────────────────────────
+let currentBtTemplateKey = null;
+
+function openBtTemplateModal(strategy) {
+  currentBtTemplateKey = getBtTemplateKey(strategy);
+  const fields = btTemplates[currentBtTemplateKey] || [];
+  const el = document.getElementById('btTemplateModalOverlay');
+  if (!el) { showToast('Modal no encontrado', 'error'); return; }
+  document.getElementById('btTemplateModalTitle').textContent =
+    strategy ? `Plantilla — ${strategy}` : 'Plantilla de backtesting';
+  renderBtTemplateFields(fields);
+  el.classList.add('open');
+}
+
+function closeBtTemplateModal() {
+  const el = document.getElementById('btTemplateModalOverlay');
+  if (el) el.classList.remove('open');
+  currentBtTemplateKey = null;
+}
+
+function renderBtTemplateFields(fields) {
+  const list = document.getElementById('btTemplateFieldsList');
+  if (!list) return;
+  if (!fields.length) {
+    list.innerHTML = `<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:16px 0;">Aún no hay campos. Hacé clic en "Agregar campo" para empezar.</p>`;
+    return;
+  }
+  list.innerHTML = fields.map((f, i) => `
+    <div class="template-field-row" data-index="${i}">
+      <input type="text" value="${f}" placeholder="Ej: ¿Seguí el plan?" data-index="${i}" class="bt-tmpl-input template-field-input" />
+      <button class="btn-remove-field" onclick="removeBtTemplateField(${i})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function addBtTemplateField() {
+  if (!currentBtTemplateKey) return;
+  if (!btTemplates[currentBtTemplateKey]) btTemplates[currentBtTemplateKey] = [];
+  btTemplates[currentBtTemplateKey].push('');
+  renderBtTemplateFields(btTemplates[currentBtTemplateKey]);
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.bt-tmpl-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function removeBtTemplateField(idx) {
+  if (!currentBtTemplateKey) return;
+  btTemplates[currentBtTemplateKey].splice(idx, 1);
+  renderBtTemplateFields(btTemplates[currentBtTemplateKey]);
+}
+
+function saveBtTemplateModal() {
+  if (!currentBtTemplateKey) return;
+  const inputs = document.querySelectorAll('.bt-tmpl-input');
+  btTemplates[currentBtTemplateKey] = [...inputs].map(i => i.value.trim()).filter(v => v.length > 0);
+  saveBtTemplates();
+  closeBtTemplateModal();
+  showToast('Plantilla guardada', 'success');
+  if (openBtPanelId) {
+    const t = btTrades.find(x => x.id === openBtPanelId);
+    if (t) renderBtPanelBody(t);
+  }
+}
+
+function saveBtPanelTemplateAnswers(tradeId) {
+  const key = String(tradeId);
+  if (!btTemplateData[key]) btTemplateData[key] = {};
+  document.querySelectorAll('.bt-tmpl-answer').forEach(el => {
+    btTemplateData[key][el.dataset.field] = el.value;
+  });
+  saveBtTemplateData();
+  showToast('Respuestas guardadas', 'success');
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────
@@ -1604,9 +1747,51 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btnAddField').addEventListener('click',addTemplateField);
   document.getElementById('templateModalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeTemplateModal();});
 
+  // BT Template modal
+  (function injectBtTemplateModal() {
+    const overlay = document.createElement('div');
+    overlay.id = 'btTemplateModalOverlay';
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal" id="btTemplateModal">
+        <div class="modal-header">
+          <div>
+            <h2 id="btTemplateModalTitle">Plantilla</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">Define las preguntas que aparecerán al revisar cada trade de esta estrategia y temporalidad</p>
+          </div>
+          <button class="modal-close" id="btTemplateModalClose">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6;">
+            Agregá las preguntas o puntos de control que querés revisar en cada setup de esta estrategia. Por ejemplo: <em>"¿El contexto era claro?"</em>, <em>"¿Esperé confirmación?"</em>, <em>"Lección"</em>.
+          </p>
+          <div id="btTemplateFieldsList" class="template-fields-list"></div>
+          <button class="btn-add-field" id="btnAddBtTemplateField">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar campo
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="btTemplateModalCancel">Cancelar</button>
+          <button class="btn-primary" id="btTemplateModalSave">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Guardar plantilla
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeBtTemplateModal(); });
+    document.getElementById('btTemplateModalClose').addEventListener('click', closeBtTemplateModal);
+    document.getElementById('btTemplateModalCancel').addEventListener('click', closeBtTemplateModal);
+    document.getElementById('btTemplateModalSave').addEventListener('click', saveBtTemplateModal);
+    document.getElementById('btnAddBtTemplateField').addEventListener('click', addBtTemplateField);
+  })();
+
   // ESC key
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){closeModal();closeTemplateModal();closePanel();closeBtModal();}
+    if(e.key==='Escape'){closeModal();closeTemplateModal();closePanel();closeBtModal();closeBtTemplateModal();}
   });
 
   // Generar 50 trades de prueba si hay menos
